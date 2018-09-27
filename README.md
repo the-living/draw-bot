@@ -1,8 +1,8 @@
-# PORTRAIT BOT (for MaRS)
-Control software and firmware for CNC airbrush drawing robot
+# DRAWING ROBOT PLATFORM
+Control software and firmware for drawing robot
 
-### FIRMWARE
+### [FIRMWARE](draw-bot/tree/master/FIRMWARE)
 Contains firmware, settings, and instructions for flashing Arduino microcontroller.
 
-### CONTROL APP
+### [CONTROL APP](draw-bot/tree/master/CONTROL_APP)
 Contains GUI software and instructions for interfacing with robot.
