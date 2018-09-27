@@ -21,9 +21,8 @@ public class drawbot_app extends PApplet {
 
  ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// brush-bot Airbrushing Robot | The Living | 2016                            //
-// Portrait Mode                                                              //
-// v4.0 2017.06.12                                                            //
+// draw-bot Drawing Robot Platform | The Living | 2018                        //                                                              //
+// v5.0 2018.09.27                                                            //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +48,7 @@ String fp = "";
 // UX
 ControlP5 cP5;
 CallbackListener cb;
-Bang start, pause, load, setorigin, connect, penon, penoff, runpreview;
+Bang start, pause, load, setorigin, connect, penon, penoff, runpreview, regenpreview;
 Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n;
 Slider pen, startline;
 Bang step_b, step_f;
@@ -182,13 +181,14 @@ public void settings(){
 }
 
 public void checkWindow(){
-    if( lastw != width || lasth != height) {
+    if( lastw != width || lasth != height || width < 1400 || height < 850) {
         if( width < 1400 || height < 850){
             surface.setSize(max(1400,width), max(850,height));
         }
         updateCanvasScale();
         connect.setPosition(475,height-30);
         runpreview.setPosition(origin.x-50,height-30);
+        regenpreview.setPosition(625, height-30);
 
         lastw = width;
         lasth = height;
@@ -349,6 +349,19 @@ public void updateLineSelector(){
     }
 }
 
+public void updatePosition(){
+  if( startselect > 0 ) {
+        line = startselect;
+        issued = startselect-1;
+        completed = startselect-1;
+        PVector goPt = findLastPt();
+        String goCmd = gLine(goPt.x, goPt.y, false);
+        port.write( goCmd + "\n");
+        sent = goCmd;
+        lastSent = goCmd;
+    }
+}
+
 public PVector findLastPt() {
     String cmd = gcode.get(startselect);
     int type = PApplet.parseInt(parseNumber(cmd,"G",-1));
@@ -494,6 +507,20 @@ public void setupControls() {
         .setFont(font14)
         .setText("RUN PREVIEW");
     runpreview.addCallback(inputGeneric);
+    
+    // OPERATION - Regenerate Preview
+    regenpreview = cP5.addBang("regen")
+        .setPosition(625, height-30)
+        .setSize(100, 25)
+        .setTriggerEvent(Bang.RELEASE)
+        .setColorForeground(black)
+        .setColorActive(red);
+    regenpreview.getCaptionLabel()
+        .align(ControlP5.CENTER, ControlP5.CENTER)
+        .setColor(white)
+        .setFont(font14)
+        .setText("REGENERATE");
+    regenpreview.addCallback(inputGeneric);
 
     // OPERATION - Start Button
     start = cP5.addBang("start")
@@ -605,6 +632,7 @@ public void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -630,6 +658,7 @@ public void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -655,6 +684,7 @@ public void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -697,7 +727,8 @@ public void setupControls() {
         .setFocus( false )
         .setColor( black )
         .setAutoClear( false )
-        .setValue( nfs(sprayon,0,1) );
+        .setValue( nfs(sprayon,0,1) )
+        .setColorCursor( blue );
     setpen.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -714,7 +745,8 @@ public void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(canvas_width) );
+        .setValue( nf(canvas_width) )
+        .setColorCursor( blue );
     setwidth.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -731,7 +763,8 @@ public void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(canvas_height) );
+        .setValue( nf(canvas_height) )
+        .setColorCursor( blue );
     setheight.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -748,7 +781,8 @@ public void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(spray_speed) );
+        .setValue( nf(spray_speed) )
+        .setColorCursor( blue );
     setspeed.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -991,7 +1025,8 @@ public void setupControls() {
         .setFont( font24 )
         .setFocus( true )
         .setColor( black )
-        .setAutoClear( true );
+        .setAutoClear( true )
+        .setColorCursor( blue );
     cmdentry.getCaptionLabel()
         .setColor(white)
         .setFont(font14)
@@ -1024,13 +1059,16 @@ if ( theEvent.isController() ) {
                 previewing = false;
                 break;
             }
+        case "regen":
+            updatePreview();
+            break;
         case "home":
             if(!streaming) send( home() );
             break;
-        case "sprayOff":
+        case "penUp":
             if(!streaming) send( gSpray(false) );
             break;
-        case "sprayOn":
+        case "penDn":
             if(!streaming) send( gSpray(true) );
             break;
         // case "penSlider":
@@ -1122,6 +1160,9 @@ public void checkStatus(){
         if (startline.getMax() < gcode.size()) {
             updateLineSelector();
         }
+        lockSlider( startline, false, grey, black);
+        lockButton( step_f, false, white, black);
+        lockButton( step_b, false, white, black);
     }
 
     if( (streaming && !paused) ){
@@ -1133,6 +1174,9 @@ public void checkStatus(){
         lockButton( setorigin, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
+        lockSlider( startline, true, charcoal, white);
+        lockButton( step_f, true, black, white);
+        lockButton( step_b, true, black, white);
         return;
     }
 
@@ -1145,6 +1189,9 @@ public void checkStatus(){
         lockButton( setorigin, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
+        lockSlider( startline, true, charcoal, white);
+        lockButton( step_f, true, black, white);
+        lockButton( step_b, true, black, white);
         return;
     }
 
@@ -1156,6 +1203,7 @@ public void checkStatus(){
     lockButton( setorigin, false, black, white );
     lockButton( connect, false, white, black );
     lockButton( runpreview, false, black, white);
+    
     // relabelButton( runpreview, "START PREVIEW" );
 
 }
@@ -1183,7 +1231,7 @@ public void highlightButton(Bang button, int c){
 public void lockSlider(Slider sl, boolean lock, int c, int t){
     sl.setLock(lock)
         .setColorForeground(c)
-        .getCaptionLabel().setColor(t);
+        .getValueLabel().setColor(t);
 }
 ////////////////////////////////////////////////////////////////////////////////
 // GCODE
@@ -1673,6 +1721,7 @@ public void serialRun(){
 
         if(SIMPLE_MODE){
             if( temp.matches(CMD_OK) ){
+                val = temp;
                 if(VERBOSE) print("[RX] "+temp+"\n");
                 line++;
                 completed++;
@@ -1682,6 +1731,7 @@ public void serialRun(){
         else {
             if( temp.matches(CMD_OK)){
                 if(VERBOSE) print("[RX] "+temp+"\n");
+                val = temp;
                 if(c_line.size()>0){
                     c_line.remove(0);
                     completed++;
@@ -1704,15 +1754,20 @@ public void extractDim(){
     String[] temp_stat = status.substring(1,status.length()-1).split("\\|");
     //Extract machine status
     idle = temp_stat[0].contains("Idle");
-    //Extract Work Position
-    String[] temp_pos = temp_stat[1].substring(5).split(",");
-    posx = PApplet.parseFloat(temp_pos[0]);
-    posy = PApplet.parseFloat(temp_pos[1]);
-    //Extract Servo Position
-    int servoPos = PApplet.parseInt( temp_stat[3].substring(4).split(",")[1] );
-    spraying = (servoPos > 0);
+    
+    for(int i = 1; i < temp_stat.length; i++){
+      String tempVal = temp_stat[i];
+      if(tempVal.contains("Pos:")){
+        String[] temp_pos = tempVal.substring(5).split(",");
+        posx = PApplet.parseFloat(temp_pos[0]);
+        posy = PApplet.parseFloat(temp_pos[1]);
+      } else if (tempVal.contains("FS:")){
+        int servoPos = PApplet.parseInt( tempVal.substring(3).split(",")[1] );
+        spraying = (servoPos > 0);
+      }
+    }
     //Format status message for UX
-    status = join(subset(temp_stat,0,4), " | ");
+    status = join(subset(temp_stat,0,min(temp_stat.length,3)), " | ");
 }
 
 // SERIAL SEND
@@ -1735,23 +1790,14 @@ public void sendByte( Byte b ){
 // RESET SERIAL STREAM STATUS
 public void resetStatus(){
     line = 0;
-    issued = 0;
-    completed = 0;
+    issued = (startselect > 0 ? startselect-1 : 0);
+    completed = (startselect > 0 ? startselect-1 : 0);
     c_line = new IntList();
 }
 
 // SERIAL STREAM
 public void stream(){
     if(!connected || !streaming) return;
-
-    if( startselect > 0 ) {
-        line = startselect;
-        PVector goPt = findLastPt();
-        String goCmd = gLine(goPt.x, goPt.y, false);
-        port.write( goCmd + "\n");
-        lastSent = goCmd;
-    }
-
 
     while(true){
         if( line >= gcode.size() || line < 0 ){
@@ -1797,6 +1843,9 @@ public void stream(){
         }
     }
 }
+////////////////////////////////////////////////////////////////////////////////
+// UI/UX DISPLAY
+////////////////////////////////////////////////////////////////////////////////
 
 public void updateCanvasScale() {
     origin = new PVector(600 + (width-600)/2, (height/2)-25);
@@ -1943,7 +1992,7 @@ public void displayStats(){
     fill(red);
     textAlign(LEFT);
     textFont(font18, 18);
-    text("RX: "+val, 15, 640);
+    text("RX: "+val, 15, 690);
   }
 
   //COMPLETION
@@ -1951,8 +2000,8 @@ public void displayStats(){
   fill(white);
   textAlign(LEFT);
   textFont(font18,18);
-  text("LINES SENT: "+issued+" / "+gcode.size(), 15, 670);
-  text("COMPLETED: "+completed+" / "+gcode.size(), 15, 690);
+  text("LINES SENT: "+issued+" / "+gcode.size(), 15, height-50);
+  text("COMPLETED: "+completed+" / "+gcode.size(), 15, height-30);
 
   // Serial Status
   String serial_status;

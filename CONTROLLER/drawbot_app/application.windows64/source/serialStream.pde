@@ -77,6 +77,7 @@ void serialRun(){
 
         if(SIMPLE_MODE){
             if( temp.matches(CMD_OK) ){
+                val = temp;
                 if(VERBOSE) print("[RX] "+temp+"\n");
                 line++;
                 completed++;
@@ -86,6 +87,7 @@ void serialRun(){
         else {
             if( temp.matches(CMD_OK)){
                 if(VERBOSE) print("[RX] "+temp+"\n");
+                val = temp;
                 if(c_line.size()>0){
                     c_line.remove(0);
                     completed++;
@@ -108,15 +110,20 @@ void extractDim(){
     String[] temp_stat = status.substring(1,status.length()-1).split("\\|");
     //Extract machine status
     idle = temp_stat[0].contains("Idle");
-    //Extract Work Position
-    String[] temp_pos = temp_stat[1].substring(5).split(",");
-    posx = float(temp_pos[0]);
-    posy = float(temp_pos[1]);
-    //Extract Servo Position
-    int servoPos = int( temp_stat[3].substring(4).split(",")[1] );
-    spraying = (servoPos > 0);
+    
+    for(int i = 1; i < temp_stat.length; i++){
+      String tempVal = temp_stat[i];
+      if(tempVal.contains("Pos:")){
+        String[] temp_pos = tempVal.substring(5).split(",");
+        posx = float(temp_pos[0]);
+        posy = float(temp_pos[1]);
+      } else if (tempVal.contains("FS:")){
+        int servoPos = int( tempVal.substring(3).split(",")[1] );
+        spraying = (servoPos > 0);
+      }
+    }
     //Format status message for UX
-    status = join(subset(temp_stat,0,4), " | ");
+    status = join(subset(temp_stat,0,min(temp_stat.length,3)), " | ");
 }
 
 // SERIAL SEND
@@ -139,23 +146,14 @@ void sendByte( Byte b ){
 // RESET SERIAL STREAM STATUS
 void resetStatus(){
     line = 0;
-    issued = 0;
-    completed = 0;
+    issued = (startselect > 0 ? startselect-1 : 0);
+    completed = (startselect > 0 ? startselect-1 : 0);
     c_line = new IntList();
 }
 
 // SERIAL STREAM
 void stream(){
     if(!connected || !streaming) return;
-
-    if( startselect > 0 ) {
-        line = startselect;
-        PVector goPt = findLastPt();
-        String goCmd = gLine(goPt.x, goPt.y, false);
-        port.write( goCmd + "\n");
-        lastSent = goCmd;
-    }
-
 
     while(true){
         if( line >= gcode.size() || line < 0 ){

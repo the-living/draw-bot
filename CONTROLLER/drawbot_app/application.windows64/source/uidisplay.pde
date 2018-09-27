@@ -1,3 +1,6 @@
+////////////////////////////////////////////////////////////////////////////////
+// UI/UX DISPLAY
+////////////////////////////////////////////////////////////////////////////////
 
 void updateCanvasScale() {
     origin = new PVector(600 + (width-600)/2, (height/2)-25);
@@ -144,7 +147,7 @@ void displayStats(){
     fill(red);
     textAlign(LEFT);
     textFont(font18, 18);
-    text("RX: "+val, 15, 640);
+    text("RX: "+val, 15, 690);
   }
 
   //COMPLETION
@@ -152,8 +155,8 @@ void displayStats(){
   fill(white);
   textAlign(LEFT);
   textFont(font18,18);
-  text("LINES SENT: "+issued+" / "+gcode.size(), 15, 670);
-  text("COMPLETED: "+completed+" / "+gcode.size(), 15, 690);
+  text("LINES SENT: "+issued+" / "+gcode.size(), 15, height-50);
+  text("COMPLETED: "+completed+" / "+gcode.size(), 15, height-30);
 
   // Serial Status
   String serial_status;

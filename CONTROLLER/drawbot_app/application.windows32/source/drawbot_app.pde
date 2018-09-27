@@ -1,8 +1,7 @@
  ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// brush-bot Airbrushing Robot | The Living | 2016                            //
-// Portrait Mode                                                              //
-// v4.0 2017.06.12                                                            //
+// draw-bot Drawing Robot Platform | The Living | 2018                        //                                                              //
+// v5.0 2018.09.27                                                            //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +27,7 @@ String fp = "";
 // UX
 ControlP5 cP5;
 CallbackListener cb;
-Bang start, pause, load, setorigin, connect, penon, penoff, runpreview;
+Bang start, pause, load, setorigin, connect, penon, penoff, runpreview, regenpreview;
 Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n;
 Slider pen, startline;
 Bang step_b, step_f;
@@ -161,13 +160,14 @@ void settings(){
 }
 
 void checkWindow(){
-    if( lastw != width || lasth != height) {
+    if( lastw != width || lasth != height || width < 1400 || height < 850) {
         if( width < 1400 || height < 850){
             surface.setSize(max(1400,width), max(850,height));
         }
         updateCanvasScale();
         connect.setPosition(475,height-30);
         runpreview.setPosition(origin.x-50,height-30);
+        regenpreview.setPosition(625, height-30);
 
         lastw = width;
         lasth = height;
@@ -325,6 +325,19 @@ void updateLineSelector(){
         step_f.setLock(false);
         step_b.setLock(false);
         startline.setMax(max(1,int(breaks.size())));
+    }
+}
+
+void updatePosition(){
+  if( startselect > 0 ) {
+        line = startselect;
+        issued = startselect-1;
+        completed = startselect-1;
+        PVector goPt = findLastPt();
+        String goCmd = gLine(goPt.x, goPt.y, false);
+        port.write( goCmd + "\n");
+        sent = goCmd;
+        lastSent = goCmd;
     }
 }
 

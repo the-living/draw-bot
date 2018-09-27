@@ -132,6 +132,20 @@ void setupControls() {
         .setFont(font14)
         .setText("RUN PREVIEW");
     runpreview.addCallback(inputGeneric);
+    
+    // OPERATION - Regenerate Preview
+    regenpreview = cP5.addBang("regen")
+        .setPosition(625, height-30)
+        .setSize(100, 25)
+        .setTriggerEvent(Bang.RELEASE)
+        .setColorForeground(black)
+        .setColorActive(red);
+    regenpreview.getCaptionLabel()
+        .align(ControlP5.CENTER, ControlP5.CENTER)
+        .setColor(white)
+        .setFont(font14)
+        .setText("REGENERATE");
+    regenpreview.addCallback(inputGeneric);
 
     // OPERATION - Start Button
     start = cP5.addBang("start")
@@ -243,6 +257,7 @@ void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -268,6 +283,7 @@ void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -293,6 +309,7 @@ void setupControls() {
                 startline.setValue(breakselect);
                 startselect = breaks.get(breakselect);
                 updatePreview();
+                updatePosition();
             }
         }
     });
@@ -335,7 +352,8 @@ void setupControls() {
         .setFocus( false )
         .setColor( black )
         .setAutoClear( false )
-        .setValue( nfs(sprayon,0,1) );
+        .setValue( nfs(sprayon,0,1) )
+        .setColorCursor( blue );
     setpen.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -352,7 +370,8 @@ void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(canvas_width) );
+        .setValue( nf(canvas_width) )
+        .setColorCursor( blue );
     setwidth.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -369,7 +388,8 @@ void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(canvas_height) );
+        .setValue( nf(canvas_height) )
+        .setColorCursor( blue );
     setheight.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -386,7 +406,8 @@ void setupControls() {
         .setColor( black )
         .setAutoClear( false )
         .setInputFilter( ControlP5.INTEGER )
-        .setValue( nf(spray_speed) );
+        .setValue( nf(spray_speed) )
+        .setColorCursor( blue );
     setspeed.getCaptionLabel()
         .setColor( black )
         .setFont( font14 )
@@ -629,7 +650,8 @@ void setupControls() {
         .setFont( font24 )
         .setFocus( true )
         .setColor( black )
-        .setAutoClear( true );
+        .setAutoClear( true )
+        .setColorCursor( blue );
     cmdentry.getCaptionLabel()
         .setColor(white)
         .setFont(font14)
@@ -662,13 +684,16 @@ if ( theEvent.isController() ) {
                 previewing = false;
                 break;
             }
+        case "regen":
+            updatePreview();
+            break;
         case "home":
             if(!streaming) send( home() );
             break;
-        case "sprayOff":
+        case "penUp":
             if(!streaming) send( gSpray(false) );
             break;
-        case "sprayOn":
+        case "penDn":
             if(!streaming) send( gSpray(true) );
             break;
         // case "penSlider":
@@ -760,6 +785,9 @@ void checkStatus(){
         if (startline.getMax() < gcode.size()) {
             updateLineSelector();
         }
+        lockSlider( startline, false, grey, black);
+        lockButton( step_f, false, white, black);
+        lockButton( step_b, false, white, black);
     }
 
     if( (streaming && !paused) ){
@@ -771,6 +799,9 @@ void checkStatus(){
         lockButton( setorigin, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
+        lockSlider( startline, true, charcoal, white);
+        lockButton( step_f, true, black, white);
+        lockButton( step_b, true, black, white);
         return;
     }
 
@@ -783,6 +814,9 @@ void checkStatus(){
         lockButton( setorigin, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
+        lockSlider( startline, true, charcoal, white);
+        lockButton( step_f, true, black, white);
+        lockButton( step_b, true, black, white);
         return;
     }
 
@@ -794,6 +828,7 @@ void checkStatus(){
     lockButton( setorigin, false, black, white );
     lockButton( connect, false, white, black );
     lockButton( runpreview, false, black, white);
+    
     // relabelButton( runpreview, "START PREVIEW" );
 
 }
@@ -821,5 +856,5 @@ void highlightButton(Bang button, color c){
 void lockSlider(Slider sl, boolean lock, color c, color t){
     sl.setLock(lock)
         .setColorForeground(c)
-        .getCaptionLabel().setColor(t);
+        .getValueLabel().setColor(t);
 }
