@@ -1,8 +1,8 @@
-# DRAWING ROBOT PLATFORM
+# draw-bot: DRAWING ROBOT PLATFORM
 Control software and firmware for drawing robot
 
 ### [FIRMWARE](FIRMWARE)
 Contains firmware, settings, and instructions for flashing Arduino microcontroller.
 
-### [CONTROL APP](CONTROLLER)
-Contains GUI software and instructions for interfacing with robot.
+### [CONTROLLER](CONTROLLER)
+Contains GUI control software and instructions for using the robot.

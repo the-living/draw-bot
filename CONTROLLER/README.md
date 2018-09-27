@@ -51,7 +51,7 @@ _After issuing `PAUSE` command, wait to press `RESET` until machine has stopped 
 ---
 # [Typical Workflow](#typical-workflow)
 1. If not connected, plug in USB connection to Arduino controller and press `CONNECT` to establish serial connection.
-3. Use the `JOGGING` buttons to position the sprayer at the __top left__ corner of the canvas. Click `SET ORIGIN` to set this as your work coordinate origin (0,0).
+3. Use the `JOGGING` buttons to position the pen at the __top left__ corner of the canvas. Click `SET ORIGIN` to set this as your work coordinate origin (0,0).
 4. Select correct load settings (file type and loading mode), then click `LOAD` to select and process drawing file(s). A preview will appear in the Canvas Preview area.
 5. Click `START` to begin machine operation. Click `PAUSE` to temporarily halt the machine operation, and `RESUME`. Click `RESET` if you need to cancel the drawing and return to home position.
 6. Repeat from (4) to load a new drawing.
