@@ -1,11 +1,11 @@
-# Portrait-bot Firmware
+# Draw-bot Firmware
 
-The _Portrait-bot_ is driven by an Arduino UNO with a [CNC Shield](http://blog.protoneer.co.nz/arduino-cnc-shield/) running [grbl-servo](https://github.com/cprezzi/grbl-servo) firmware. This firmware is a modified version of [GRBL v1.1](https://github.com/gnea/grbl/) that replaces spindle functionality with controls for a servo motor. Please refer to the [GRBL wiki](https://github.com/gnea/grbl/wiki) for more information on its capabilities and interfacing methods.
+The _draw-bot_ is driven by an Arduino UNO with a [CNC Shield](http://blog.protoneer.co.nz/arduino-cnc-shield/) running [grbl-servo](https://github.com/cprezzi/grbl-servo) firmware. This firmware is a modified version of [GRBL v1.1](https://github.com/gnea/grbl/) that replaces spindle functionality with controls for a servo motor. Please refer to the [GRBL wiki](https://github.com/gnea/grbl/wiki) for more information on its capabilities and interfacing methods.
 
 Loading the Arduino with the correct firmware and settings should only need to be done once -- GRBL stores machine settings on its onboard EEPROM memory.
 
 ### UPDATING THE FIRMWARE
-In order to use the portrait-bot controller application, the connected arduino must be running the correct version of GRBL. There are two methods to flash the firmware to the arduino.
+In order to use the draw-bot controller application, the connected arduino must be running the correct version of GRBL. There are two methods to flash the firmware to the arduino.
 
 #### Method 1: Compile & upload GRBL via Arduino IDE
 - Make sure you have a copy of the [Arduino IDE](https://www.arduino.cc/en/Main/Software) installed on your computer. _Do not use the web-based version._
@@ -22,7 +22,7 @@ In order to use the portrait-bot controller application, the connected arduino m
 - Download the program [XLoader](http://russemotto.com/xloader/), and follow the instructions to load the `.hex` file to the connected Arduino.
 
 ### UPDATING THE SETTINGS
-A newly flashed Arduino running GRBL will need its settings updated to work correctly with the portrait bot. You can use the `Serial Monitor` in the Arduino IDE (found under `Tools>Serial Monitor`) to send messages to GRBL.
+A newly flashed Arduino running GRBL will need its settings updated to work correctly with the draw-bot. You can use the `Serial Monitor` in the Arduino IDE (found under `Tools>Serial Monitor`) to send messages to GRBL.
 
 Make sure the return character pull-down menu is set to `Newline` and the baudrate to `115200 baud`. You should see the message `Grbl 1.1f ['$' for help]` indicating a successfull connection to GRBL.
 
