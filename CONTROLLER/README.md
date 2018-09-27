@@ -1,4 +1,4 @@
-# Portrait-bot Controller Software
+# draw-bot Controller Software
 _Designed & built by The Living, an Autodesk Studio. 2017._
 
 ![User Interface](DOCUMENTATION/UI_01.png)
