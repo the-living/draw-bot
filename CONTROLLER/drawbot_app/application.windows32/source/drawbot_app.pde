@@ -30,7 +30,7 @@ String fp = "";
 ControlP5 cP5;
 CallbackListener cb;
 Bang start, pause, load, setorigin, connect, penon, penoff, runpreview, regenpreview;
-Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n;
+Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n, park;
 Slider pen, startline;
 Bang step_b, step_f;
 Textfield setwidth, setheight, setpen, setspeed;
@@ -331,6 +331,12 @@ void testPen(){
     send(gSpray(true));
     send(gDwell(pausepen));
     send(gSpray(false));
+}
+
+void park(){
+  send(gSpray(false));
+  send(home());
+  send(gLine(-100, 600, false));
 }
 
 // UPDATE SPEED

@@ -51,7 +51,7 @@ String fp = "";
 ControlP5 cP5;
 CallbackListener cb;
 Bang start, pause, load, setorigin, connect, penon, penoff, runpreview, regenpreview;
-Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n;
+Bang gohome, x1, x10, x100, x1n, x10n, x100n, y1, y10, y100, y1n, y10n, y100n, park;
 Slider pen, startline;
 Bang step_b, step_f;
 Textfield setwidth, setheight, setpen, setspeed;
@@ -352,6 +352,12 @@ public void testPen(){
     send(gSpray(true));
     send(gDwell(pausepen));
     send(gSpray(false));
+}
+
+public void park(){
+  send(gSpray(false));
+  send(home());
+  send(gLine(-100, 600, false));
 }
 
 // UPDATE SPEED
@@ -1038,6 +1044,20 @@ public void setupControls() {
         .setFont(font14)
         .setText("SET (0,0)");
     setorigin.addCallback(inputGeneric);
+    
+    // MANUAL CONTROLS - Park
+    park = cP5.addBang("park")
+        .setPosition(25,300)
+        .setSize(70,50)
+        .setTriggerEvent(Bang.RELEASE)
+        .setColorForeground(white)
+        .setColorActive(blue);
+    park.getCaptionLabel()
+        .align(ControlP5.CENTER, ControlP5.CENTER)
+        .setColor(black)
+        .setFont(font14)
+        .setText("PARK");
+    park.addCallback(inputGeneric);
 
 
 
@@ -1099,6 +1119,9 @@ if ( theEvent.isController() ) {
         // break;
         case "origin":
             if(!streaming) send( origin() );
+            break;
+        case "park":
+            if(!streaming) park();
             break;
         case "width":
         case "height":
@@ -1195,6 +1218,7 @@ public void checkStatus(){
         relabelButton( pause, "PAUSE" );
         lockButton( load, true, charcoal, grey );
         lockButton( setorigin, true, charcoal, grey );
+        lockButton( park, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
         lockSlider( startline, true, charcoal, white);
@@ -1210,6 +1234,7 @@ public void checkStatus(){
         relabelButton( pause, "RESUME" );
         lockButton( load, true, charcoal, grey );
         lockButton( setorigin, true, charcoal, grey );
+        lockButton( park, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
         lockSlider( startline, true, charcoal, white);
@@ -1224,6 +1249,7 @@ public void checkStatus(){
     relabelButton( pause, "PAUSE" );
     lockButton( load, false, blue, black );
     lockButton( setorigin, false, black, white );
+    lockButton( park, false, black, white );
     lockButton( connect, false, white, black );
     lockButton( runpreview, false, black, white);
     

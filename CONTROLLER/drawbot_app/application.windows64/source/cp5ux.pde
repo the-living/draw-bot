@@ -642,6 +642,20 @@ void setupControls() {
         .setFont(font14)
         .setText("SET (0,0)");
     setorigin.addCallback(inputGeneric);
+    
+    // MANUAL CONTROLS - Park
+    park = cP5.addBang("park")
+        .setPosition(25,300)
+        .setSize(70,50)
+        .setTriggerEvent(Bang.RELEASE)
+        .setColorForeground(white)
+        .setColorActive(blue);
+    park.getCaptionLabel()
+        .align(ControlP5.CENTER, ControlP5.CENTER)
+        .setColor(black)
+        .setFont(font14)
+        .setText("PARK");
+    park.addCallback(inputGeneric);
 
 
 
@@ -703,6 +717,9 @@ if ( theEvent.isController() ) {
         // break;
         case "origin":
             if(!streaming) send( origin() );
+            break;
+        case "park":
+            if(!streaming) park();
             break;
         case "width":
         case "height":
@@ -799,6 +816,7 @@ void checkStatus(){
         relabelButton( pause, "PAUSE" );
         lockButton( load, true, charcoal, grey );
         lockButton( setorigin, true, charcoal, grey );
+        lockButton( park, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
         lockSlider( startline, true, charcoal, white);
@@ -814,6 +832,7 @@ void checkStatus(){
         relabelButton( pause, "RESUME" );
         lockButton( load, true, charcoal, grey );
         lockButton( setorigin, true, charcoal, grey );
+        lockButton( park, true, charcoal, grey );
         lockButton( connect, true, charcoal, grey );
         lockButton( runpreview, true, black, black);
         lockSlider( startline, true, charcoal, white);
@@ -828,6 +847,7 @@ void checkStatus(){
     relabelButton( pause, "PAUSE" );
     lockButton( load, false, blue, black );
     lockButton( setorigin, false, black, white );
+    lockButton( park, false, black, white );
     lockButton( connect, false, white, black );
     lockButton( runpreview, false, black, white);
     
