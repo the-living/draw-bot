@@ -173,7 +173,9 @@ void displayStats(){
 
   // File Selection
   if(fp.length()>0){
-    String[] path = fp.split("\\\\");
+    //println(fp);
+    String[] path = fp.split(os.contains("Windows") ? "\\\\" : "/");
+    //println(path);
     int depth = path.length;
     textFont(font18,18);
     fill( white );

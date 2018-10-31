@@ -339,6 +339,8 @@ void setupControls() {
                 Float s_ = cP5.get(Slider.class, "penSlider").getValue();
                 cP5.get(Textfield.class, "penpos").setText(nfs(s_,0,1));
                 sprayon = s_;
+                pausepen = sprayon * 0.01;
+                reportPen();
                 testPen();
             }
         }

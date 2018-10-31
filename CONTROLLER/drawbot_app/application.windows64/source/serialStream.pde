@@ -28,7 +28,20 @@ void closeSerial(){
 
 // SELECT SERIAL PORT TO OPEN
 void selectSerial(){
-    int s = Serial.list().length;
+    String[] serialRaw = Serial.list();
+    StringList serialClean = new StringList();
+    for( String option : serialRaw){
+      if( os.contains("Mac")){
+          if(option.contains("/dev/tty.")){
+              serialClean.push(option);
+          }
+          continue;
+      }
+      serialClean.push(option);
+    }
+    String[] serialOptions = serialClean.array();
+    
+    int s = serialOptions.length;
     if( s == 0 ){
         JOptionPane.showMessageDialog(null, "No Arduino Connected");
         return;
@@ -40,12 +53,12 @@ void selectSerial(){
             "Select serial port",
             JOptionPane.PLAIN_MESSAGE,
             null,
-            Serial.list(),
+            serialOptions,
             0
         );
         if( result != null ) portname = result;
     }
-    else portname = Serial.list()[0];
+    else portname = serialOptions[0];
     openSerial();
 }
 
@@ -177,6 +190,7 @@ void stream(){
 
     String cmd = gcode.get(line).trim().replace(" ","");
     if(swapSpray && cmd.contains("M3S")) cmd = gSpray(true);
+    if(swapSpray && cmd.contains("G4")) cmd = gDwell(pausepen);
     
     if(SIMPLE_MODE){
         if( !lastSent.contains(cmd) ){

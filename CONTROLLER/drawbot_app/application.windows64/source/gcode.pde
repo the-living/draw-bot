@@ -23,7 +23,7 @@ String gArc(float cx, float cy, float x, float y, boolean dir){
 
 // G4 - PAUSE COMMAND
 String gDwell( float time ){
-    return "G4P" + str(time);
+    return "G4P" + nf(time,0,3);
 }
 
 // M3 - SPRAY COMMAND

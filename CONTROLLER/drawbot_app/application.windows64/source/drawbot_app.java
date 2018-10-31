@@ -39,6 +39,8 @@ public class drawbot_app extends PApplet {
 Boolean VERBOSE = false; //default: false -- if enabled, print all responses from GRBL
 Boolean SIMPLE_MODE = false; //default: false (buffer-fill mode) / true (line-response mode)
 int reportFreq = 10; //
+String os;
+String divider;
 
 // IO
 Boolean type_gcode = false;
@@ -77,6 +79,7 @@ float scaleWidth, scaleHeight, scaleMargin;
 float sprayoff = 0.0f;
 float sprayon = 28.0f;
 float spraymax = 100.0f;
+float pausepen = 0.28f;
 boolean swapSpray = true;
 
 // STATUS
@@ -105,6 +108,13 @@ int timeout = 0;
 // SETUP
 //------------------------------------------------------------------------------
 public void setup() {
+    os = System.getProperty("os.name");
+    if(os.contains("Mac")){
+        divider = "\\";
+    } else {
+        divider = "/";
+    }
+    println("OS: " + os);
     settings(); //INITIALIZE WINDOW SIZE
     lastw = width;
     lasth = height;
@@ -317,6 +327,8 @@ public void updatePenText(){
     sprayon = (s_ != "" && PApplet.parseInt(s_)>=0 && PApplet.parseInt(s_)<=100) ? PApplet.parseFloat(s_) : sprayon;
     cP5.get(Slider.class, "penSlider").setValue(sprayon);
     cP5.get(Textfield.class, "penpos").setText(nfs(sprayon,0,1));
+    pausepen = sprayon * 0.01f;
+    reportPen();
     testPen();
 }
 
@@ -324,12 +336,21 @@ public void updatePenSlider(){
     Float s_ = cP5.get(Slider.class, "penSlider").getValue();
     cP5.get(Textfield.class, "penpos").setText(nfs(s_,0,1));
     sprayon = s_;
+    pausepen = sprayon * 0.01f;
+    reportPen();
     testPen();
+}
+
+public void reportPen(){
+    print("Pen position: ");
+    print(nf(sprayon,0,1));
+    print(" | Pause time: ");
+    println( nf(pausepen,0,3));
 }
 
 public void testPen(){
     send(gSpray(true));
-    send(gDwell(0.25f));
+    send(gDwell(pausepen));
     send(gSpray(false));
 }
 
@@ -714,6 +735,8 @@ public void setupControls() {
                 Float s_ = cP5.get(Slider.class, "penSlider").getValue();
                 cP5.get(Textfield.class, "penpos").setText(nfs(s_,0,1));
                 sprayon = s_;
+                pausepen = sprayon * 0.01f;
+                reportPen();
                 testPen();
             }
         }
@@ -1258,7 +1281,7 @@ public String gArc(float cx, float cy, float x, float y, boolean dir){
 
 // G4 - PAUSE COMMAND
 public String gDwell( float time ){
-    return "G4P" + str(time);
+    return "G4P" + nf(time,0,3);
 }
 
 // M3 - SPRAY COMMAND
@@ -1672,7 +1695,20 @@ public void closeSerial(){
 
 // SELECT SERIAL PORT TO OPEN
 public void selectSerial(){
-    int s = Serial.list().length;
+    String[] serialRaw = Serial.list();
+    StringList serialClean = new StringList();
+    for( String option : serialRaw){
+      if( os.contains("Mac")){
+          if(option.contains("/dev/tty.")){
+              serialClean.push(option);
+          }
+          continue;
+      }
+      serialClean.push(option);
+    }
+    String[] serialOptions = serialClean.array();
+    
+    int s = serialOptions.length;
     if( s == 0 ){
         JOptionPane.showMessageDialog(null, "No Arduino Connected");
         return;
@@ -1684,12 +1720,12 @@ public void selectSerial(){
             "Select serial port",
             JOptionPane.PLAIN_MESSAGE,
             null,
-            Serial.list(),
+            serialOptions,
             0
         );
         if( result != null ) portname = result;
     }
-    else portname = Serial.list()[0];
+    else portname = serialOptions[0];
     openSerial();
 }
 
@@ -1821,6 +1857,7 @@ public void stream(){
 
     String cmd = gcode.get(line).trim().replace(" ","");
     if(swapSpray && cmd.contains("M3S")) cmd = gSpray(true);
+    if(swapSpray && cmd.contains("G4")) cmd = gDwell(pausepen);
     
     if(SIMPLE_MODE){
         if( !lastSent.contains(cmd) ){
@@ -2018,7 +2055,9 @@ public void displayStats(){
 
   // File Selection
   if(fp.length()>0){
-    String[] path = fp.split("\\\\");
+    //println(fp);
+    String[] path = fp.split(os.contains("Windows") ? "\\\\" : "/");
+    //println(path);
     int depth = path.length;
     textFont(font18,18);
     fill( white );

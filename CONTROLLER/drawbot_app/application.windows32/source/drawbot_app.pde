@@ -18,6 +18,8 @@ import java.awt.event.*;
 Boolean VERBOSE = false; //default: false -- if enabled, print all responses from GRBL
 Boolean SIMPLE_MODE = false; //default: false (buffer-fill mode) / true (line-response mode)
 int reportFreq = 10; //
+String os;
+String divider;
 
 // IO
 Boolean type_gcode = false;
@@ -56,6 +58,7 @@ float scaleWidth, scaleHeight, scaleMargin;
 float sprayoff = 0.0;
 float sprayon = 28.0;
 float spraymax = 100.0;
+float pausepen = 0.28;
 boolean swapSpray = true;
 
 // STATUS
@@ -84,6 +87,13 @@ int timeout = 0;
 // SETUP
 //------------------------------------------------------------------------------
 void setup() {
+    os = System.getProperty("os.name");
+    if(os.contains("Mac")){
+        divider = "\\";
+    } else {
+        divider = "/";
+    }
+    println("OS: " + os);
     settings(); //INITIALIZE WINDOW SIZE
     lastw = width;
     lasth = height;
@@ -296,6 +306,8 @@ void updatePenText(){
     sprayon = (s_ != "" && int(s_)>=0 && int(s_)<=100) ? float(s_) : sprayon;
     cP5.get(Slider.class, "penSlider").setValue(sprayon);
     cP5.get(Textfield.class, "penpos").setText(nfs(sprayon,0,1));
+    pausepen = sprayon * 0.01;
+    reportPen();
     testPen();
 }
 
@@ -303,12 +315,21 @@ void updatePenSlider(){
     Float s_ = cP5.get(Slider.class, "penSlider").getValue();
     cP5.get(Textfield.class, "penpos").setText(nfs(s_,0,1));
     sprayon = s_;
+    pausepen = sprayon * 0.01;
+    reportPen();
     testPen();
+}
+
+void reportPen(){
+    print("Pen position: ");
+    print(nf(sprayon,0,1));
+    print(" | Pause time: ");
+    println( nf(pausepen,0,3));
 }
 
 void testPen(){
     send(gSpray(true));
-    send(gDwell(0.25));
+    send(gDwell(pausepen));
     send(gSpray(false));
 }
 
