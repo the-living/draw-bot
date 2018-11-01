@@ -1312,7 +1312,8 @@ public String gDwell( float time ){
 
 // M3 - SPRAY COMMAND
 public String gSpray( boolean s ){
-    return "M" + ((s) ? "3S" + str(PApplet.parseInt(sprayon*10)) : "5");
+    return "M" + ((s) ? "3S" + str(PApplet.parseInt(sprayon*10)) : "3S0");
+    //return "M" + ((s) ? "3S" + str(int(sprayon*10)) : "5");
 }
 
 // Report
@@ -1440,6 +1441,7 @@ public StringList processJSONs( String[] f ){
   PVector p;
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   for( int i = 0; i < f.length; i++){
@@ -1449,17 +1451,21 @@ public StringList processJSONs( String[] f ){
 
     p = extractPos( coords.getFloat(0), -coords.getFloat(1) );
     g.append( gSpray(false) );
+    g.append( gDwell(pausepen) );
     g.append( gLine( p.x, p.y, false ) );
     g.append( gDwell(0.5f) );
     g.append( gSpray(true) );
+    g.append( gDwell(pausepen) );
 
     for( int k = 2; k < coords.size(); k+=2 ){
       p = extractPos( coords.getFloat(k),coords.getFloat(k+1) );
       g.append( gLine(p.x, p.y, true) );
     }
     g.append( gSpray(false) );
+    g.append( gDwell(pausepen) );
   }
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   print("GCODE LINES GENERATED: " + g.size() + "\n");
@@ -1472,6 +1478,7 @@ public StringList processGCODEs( String[] f ){
   breaks = new IntList();
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen));
   g.append( home() );
 
   for(int i = 0; i < f.length; i++){
@@ -1487,8 +1494,10 @@ public StringList processGCODEs( String[] f ){
       g.append(load[k]);
     }
     g.append(gSpray(false));
+    g.append( gDwell(pausepen));
   }
   g.append( gSpray(false));
+  g.append( gDwell(pausepen));
   g.append( home() );
 
   return g;
@@ -1505,11 +1514,13 @@ public StringList processJSON( String f ){
   JSONArray coords = loadJSONArray( f );
   p = extractPos(coords.getFloat(0), -coords.getFloat(1));
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   g.append( gLine( p.x, p.y, false ) );
   g.append( gDwell(0.5f) );
   g.append( gSpray(true) );
+  g.append( gDwell(pausepen) );
 
   for( int i = 2; i < coords.size(); i+=2 ){
     p = extractPos( coords.getFloat(i),coords.getFloat(i+1) );
@@ -1517,6 +1528,7 @@ public StringList processJSON( String f ){
   }
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   return g;
@@ -1531,6 +1543,7 @@ public StringList processGCODE( String f ){
   }
   String[] load = loadStrings(f);
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   for (int i = 0; i < load.length; i++){
@@ -1538,6 +1551,7 @@ public StringList processGCODE( String f ){
     g.append( load[i] );
   }
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
   return g;
 }
@@ -1725,7 +1739,7 @@ public void selectSerial(){
     StringList serialClean = new StringList();
     for( String option : serialRaw){
       if( os.contains("Mac")){
-          if(option.contains("/dev/tty.")){
+          if(option.contains("/dev/tty.usb") || option.contains("/dev/tty.Bluetooth")){
               serialClean.push(option);
           }
           continue;

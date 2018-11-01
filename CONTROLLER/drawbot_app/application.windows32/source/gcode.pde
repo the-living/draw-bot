@@ -28,7 +28,8 @@ String gDwell( float time ){
 
 // M3 - SPRAY COMMAND
 String gSpray( boolean s ){
-    return "M" + ((s) ? "3S" + str(int(sprayon*10)) : "5");
+    return "M" + ((s) ? "3S" + str(int(sprayon*10)) : "3S0");
+    //return "M" + ((s) ? "3S" + str(int(sprayon*10)) : "5");
 }
 
 // Report

@@ -85,6 +85,7 @@ StringList processJSONs( String[] f ){
   PVector p;
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   for( int i = 0; i < f.length; i++){
@@ -94,17 +95,21 @@ StringList processJSONs( String[] f ){
 
     p = extractPos( coords.getFloat(0), -coords.getFloat(1) );
     g.append( gSpray(false) );
+    g.append( gDwell(pausepen) );
     g.append( gLine( p.x, p.y, false ) );
     g.append( gDwell(0.5) );
     g.append( gSpray(true) );
+    g.append( gDwell(pausepen) );
 
     for( int k = 2; k < coords.size(); k+=2 ){
       p = extractPos( coords.getFloat(k),coords.getFloat(k+1) );
       g.append( gLine(p.x, p.y, true) );
     }
     g.append( gSpray(false) );
+    g.append( gDwell(pausepen) );
   }
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   print("GCODE LINES GENERATED: " + g.size() + "\n");
@@ -117,6 +122,7 @@ StringList processGCODEs( String[] f ){
   breaks = new IntList();
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen));
   g.append( home() );
 
   for(int i = 0; i < f.length; i++){
@@ -132,8 +138,10 @@ StringList processGCODEs( String[] f ){
       g.append(load[k]);
     }
     g.append(gSpray(false));
+    g.append( gDwell(pausepen));
   }
   g.append( gSpray(false));
+  g.append( gDwell(pausepen));
   g.append( home() );
 
   return g;
@@ -150,11 +158,13 @@ StringList processJSON( String f ){
   JSONArray coords = loadJSONArray( f );
   p = extractPos(coords.getFloat(0), -coords.getFloat(1));
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   g.append( gLine( p.x, p.y, false ) );
   g.append( gDwell(0.5) );
   g.append( gSpray(true) );
+  g.append( gDwell(pausepen) );
 
   for( int i = 2; i < coords.size(); i+=2 ){
     p = extractPos( coords.getFloat(i),coords.getFloat(i+1) );
@@ -162,6 +172,7 @@ StringList processJSON( String f ){
   }
 
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   return g;
@@ -176,6 +187,7 @@ StringList processGCODE( String f ){
   }
   String[] load = loadStrings(f);
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
 
   for (int i = 0; i < load.length; i++){
@@ -183,6 +195,7 @@ StringList processGCODE( String f ){
     g.append( load[i] );
   }
   g.append( gSpray(false) );
+  g.append( gDwell(pausepen) );
   g.append( home() );
   return g;
 }

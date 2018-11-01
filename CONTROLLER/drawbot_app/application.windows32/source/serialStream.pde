@@ -32,7 +32,7 @@ void selectSerial(){
     StringList serialClean = new StringList();
     for( String option : serialRaw){
       if( os.contains("Mac")){
-          if(option.contains("/dev/tty.")){
+          if(option.contains("/dev/tty.usb") || option.contains("/dev/tty.Bluetooth")){
               serialClean.push(option);
           }
           continue;
